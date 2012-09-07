@@ -3,6 +3,39 @@ use strict;
 use warnings;
 our $VERSION = '0.01';
 
+use POSIX 'mkfifo';
+use IO::File;
+use Time::HiRes;
+
+
+sub new {
+    my ( $class, %opts ) = @_;
+    $opts{interval} ||= 1;
+    $opts{action} ||= [];
+    return bless { %opts }, $class;
+}
+
+sub fifo {
+    my $self = shift;
+    my $file = $self->{file};
+    mkfifo( $file, 0755 ) unless -e $file;
+    return IO::File->new( $file, 'r' );
+}
+
+sub poll {
+    my $self = shift;
+    my $fifo = $self->fifo;
+    while (1) { 
+        if ( my $q = $fifo->getline ) {
+            $_->($q) for @{$self->{action}};
+        }
+        else {
+            $fifo->seek(0,0);
+            Time::HiRes::sleep $self->{interval};
+        }
+    }
+}
+ 
 1;
 __END__
 

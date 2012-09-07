@@ -2,7 +2,9 @@ use inc::Module::Install;
 name 'Haltado';
 all_from 'lib/Haltado.pm';
 
-# requires '';
+requires 'Time::HiRes';
+requires 'IO::File';
+requires 'POSIX';
 
 tests 't/*.t';
 author_tests 'xt';
