@@ -42,7 +42,7 @@ sub poll {
 
 sub do_actions {
     my ( $self, $class, $data ) = @_;
-    map { printf "%s\n", ref $_; $data = $_->( $class, $data ) } @{$self->{actions}};
+    map { $data = $_->( $class, $data ) } @{$self->{actions}};
     return $data;
 }
 
