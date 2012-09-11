@@ -7,6 +7,9 @@ use POSIX 'mkfifo';
 use IO::File;
 use Time::HiRes;
 use Class::Load ':all';
+use JSON;
+
+our $JSON = JSON->new->utf8;
 
 sub new {
     my ( $class, %opts ) = @_;
@@ -27,7 +30,7 @@ sub poll {
     my $fifo = $self->fifo;
     while (1) { 
         if ( my $q = $fifo->getline ) {
-            $_->new->($q) for @{$self->{action}};
+            printf "%s\n", $JSON->encode( $_->new->($q) ) for @{$self->{action}};
         }
         else {
             $fifo->seek(0,0);
