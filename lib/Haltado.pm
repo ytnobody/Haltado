@@ -29,9 +29,10 @@ sub poll {
     my $self = shift;
     my $fifo = $self->fifo;
     my $parser = $self->{parser};
+    my %options = $self->{parser_options} ? %{$self->{parser_options} : ();
     while (1) { 
         if ( my $q = $fifo->getline ) {
-            printf "%s\n", json_res( $parser, $parser->new->($q) );
+            printf "%s\n", json_res( $parser, $parser->new(%options)->($q) );
         }
         else {
             $fifo->seek(0,0);

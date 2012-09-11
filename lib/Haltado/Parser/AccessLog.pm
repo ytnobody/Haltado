@@ -3,15 +3,15 @@ use strict;
 use warnings;
 use Parse::AccessLogEntry;
 
-our $PARSER = Parse::AccessLogEntry->new;
-
 sub new {
+    my $class = shift;
+    my $parser = Parse::AccessLogEntry->new( @_ );
     return bless sub {
         my $q = shift;
         my $res = $PARSER->parse( $q );
         delete $res->{datetime_obj};
         return $res;
-    }, shift;
+    }, $class;
 }
 
 1;
