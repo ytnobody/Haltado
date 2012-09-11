@@ -5,5 +5,12 @@ use FindBin;
 use lib ( "$FindBin::Bin/../lib" );
 use Haltado;
 
-my $c = Haltado->new( file => '/tmp/foo', parser => 'Syslog' );
+my $c = Haltado->new( 
+    file => '/tmp/foo', 
+    parser => 'Syslog', 
+    actions => [
+        'ToJSON',
+        'Echo',
+    ],
+);
 $c->poll;

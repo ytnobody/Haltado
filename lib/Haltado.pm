@@ -7,14 +7,13 @@ use POSIX 'mkfifo';
 use IO::File;
 use Time::HiRes;
 use Class::Load ':all';
-use JSON;
-
-our $JSON = JSON->new->utf8;
 
 sub new {
     my ( $class, %opts ) = @_;
     $opts{interval} ||= 1;
     $opts{parser} = $class->init_parser( $opts{parser} );
+    $opts{actions} ||= [ 'Echo' ];
+    $opts{actions} = $class->init_actions( $opts{actions} );
     return bless { %opts }, $class;
 }
 
@@ -29,10 +28,10 @@ sub poll {
     my $self = shift;
     my $fifo = $self->fifo;
     my $parser = $self->{parser};
-    my %options = $self->{parser_options} ? %{$self->{parser_options} : ();
+    my %options = $self->{parser_options} ? %{$self->{parser_options}} : ();
     while (1) { 
         if ( my $q = $fifo->getline ) {
-            printf "%s\n", json_res( $parser, $parser->new(%options)->($q) );
+            $self->do_actions( $parser, $parser->new(%options)->($q) );
         }
         else {
             $fifo->seek(0,0);
@@ -41,12 +40,10 @@ sub poll {
     }
 }
 
-sub json_res {
-    my ( $class, $data ) = @_;
-    return $JSON->encode( { 
-        scheme => $class, 
-        data => $data
-    } );
+sub do_actions {
+    my ( $self, $class, $data ) = @_;
+    map { printf "%s\n", ref $_; $data = $_->( $class, $data ) } @{$self->{actions}};
+    return $data;
 }
 
 sub init_parser {
@@ -54,8 +51,21 @@ sub init_parser {
     $parser ||= 'Raw';
     my $klass = join '::', $class, 'Parser', $parser; 
     load_class( $klass );
-warn $klass;
     return $klass;
+}
+
+sub init_actions {
+    my ( $class, $actions ) = @_;
+    return [ 
+        map { 
+            load_class( $_->{class} ); 
+            my $class = delete $_->{class}; 
+            $class->new( %$_ );
+        }
+        map { $_->{class} = join '::', $class, 'Action', $_->{class}; $_ }
+        map { $_ = ref $_ eq 'HASH' ? $_ : { class => $_ } }
+        @$actions
+    ];
 }
  
 1;
