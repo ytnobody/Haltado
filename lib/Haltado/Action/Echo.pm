@@ -5,7 +5,7 @@ use warnings;
 sub new {
     return bless sub {
         my $q = shift;
-        print $q;
+        return { value => $q };
     }, shift;
 }
 
