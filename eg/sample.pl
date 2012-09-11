@@ -5,5 +5,5 @@ use FindBin;
 use lib ( "$FindBin::Bin/../lib" );
 use Haltado;
 
-my $c = Haltado->new( file => '/tmp/foo', action => [ 'Parse::Syslog::Line' ] );
+my $c = Haltado->new( file => '/tmp/foo', action => [ 'Parse::AccessLogEntry' ] );
 $c->poll;
