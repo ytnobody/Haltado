@@ -1,4 +1,4 @@
-package Haltado::Action::Parse::AccessLogEntry;
+package Haltado::Parser::AccessLog;
 use strict;
 use warnings;
 use Parse::AccessLogEntry;

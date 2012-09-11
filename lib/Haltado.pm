@@ -14,7 +14,7 @@ our $JSON = JSON->new->utf8;
 sub new {
     my ( $class, %opts ) = @_;
     $opts{interval} ||= 1;
-    $opts{action} = $class->init_action( $opts{action} );
+    $opts{parser} = $class->init_parser( $opts{parser} );
     return bless { %opts }, $class;
 }
 
@@ -28,9 +28,10 @@ sub fifo {
 sub poll {
     my $self = shift;
     my $fifo = $self->fifo;
+    my $parser = $self->{parser};
     while (1) { 
         if ( my $q = $fifo->getline ) {
-            printf "%s\n", $JSON->encode( $_->new->($q) ) for @{$self->{action}};
+            printf "%s\n", json_res( $parser, $parser->new->($q) );
         }
         else {
             $fifo->seek(0,0);
@@ -39,14 +40,21 @@ sub poll {
     }
 }
 
-sub init_action {
-    my ( $class, $actions ) = @_;
-    $actions ||= [ 'Echo' ];
-    return [ 
-        map { load_class($_); $_ } 
-        map { join '::', $class, 'Action', $_ } 
-        @$actions 
-    ];
+sub json_res {
+    my ( $class, $data ) = @_;
+    return $JSON->encode( { 
+        scheme => $class, 
+        data => $data
+    } );
+}
+
+sub init_parser {
+    my ( $class, $parser ) = @_;
+    $parser ||= 'Raw';
+    my $klass = join '::', $class, 'Parser', $parser; 
+    load_class( $klass );
+warn $klass;
+    return $klass;
 }
  
 1;
