@@ -9,6 +9,7 @@ my $c = Haltado->new(
     file => '/tmp/foo', 
     parser => 'Syslog', 
     actions => [
+        'ToJSON',
         { class => 'Throw::HTTP', url => 'http://localhost:5000/' }
     ],
 );
