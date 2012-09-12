@@ -9,8 +9,7 @@ my $c = Haltado->new(
     file => '/tmp/foo', 
     parser => 'Syslog', 
     actions => [
-        'ToJSON',
-        'Echo',
+        { class => 'Throw::HTTP', url => 'http://localhost:5000/' }
     ],
 );
 $c->poll;

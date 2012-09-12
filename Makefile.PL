@@ -8,11 +8,18 @@ requires 'IO::File';
 requires 'POSIX';
 requires 'JSON';
 
-# Action::Parse::Syslog::Line
+# Parser::Syslog
 requires 'Parse::Syslog::Line';
 
-# Action::Parse::AccessLogEntry
+# Parser::AccessLog
 requires 'Parse::AccessLogEntry';
+
+# Action::ToJSON
+requires 'JSON';
+
+# Action::Throw::HTTP
+requires 'Furl';
+requires 'HTTP::Request::Common';
 
 tests 't/*.t';
 author_tests 'xt';
