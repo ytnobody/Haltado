@@ -18,6 +18,7 @@ sub new {
             Content => $data,
         );
         $agent->request( $req );
+        return $data;
     }, $class;
 }
 
